@@ -1,0 +1,220 @@
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<script src="http://cdn.bootcss.com/jquery/1.12.3/jquery.js"></script>
+</head>
+<div class="tree">
+</div>
+<style>
+/*Now the CSS*/
+* {margin: 0; padding: 0;}
+
+.tree ul {
+	padding-top: 20px; position: relative;
+	
+	transition: all 0.5s;
+	-webkit-transition: all 0.5s;
+	-moz-transition: all 0.5s;
+}
+
+.tree li {
+	float: left; text-align: center;
+	list-style-type: none;
+	position: relative;
+	padding: 20px 5px 0 5px;
+	
+	transition: all 0.5s;
+	-webkit-transition: all 0.5s;
+	-moz-transition: all 0.5s;
+}
+
+
+.tree li::before, .tree li::after{
+	content: '';
+	position: absolute; top: 0; right: 50%;
+	border-top: 1px solid #ccc;
+	width: 50%; height: 20px;
+}
+.tree li::after{
+	right: auto; left: 50%;
+	border-left: 1px solid #ccc;
+}
+
+.tree li:only-child::after, .tree li:only-child::before {
+	display: none;
+}
+
+.tree li:only-child{ padding-top: 0;}
+
+.tree li:first-child::before, .tree li:last-child::after{
+	border: 0 none;
+}
+
+.tree li:last-child::before{
+	border-right: 1px solid #ccc;
+	border-radius: 0 5px 0 0;
+	-webkit-border-radius: 0 5px 0 0;
+	-moz-border-radius: 0 5px 0 0;
+}
+
+.tree li:first-child::after{
+	border-radius: 5px 0 0 0;
+	-webkit-border-radius: 5px 0 0 0;
+	-moz-border-radius: 5px 0 0 0;
+}
+
+.tree ul ul::before{
+	content: '';
+	position: absolute; top: 0; left: 50%;
+	border-left: 1px solid #ccc;
+	width: 0; height: 20px;
+}
+
+.tree li a{
+	border: 1px solid #ccc;
+	padding: 5px 10px;
+	text-decoration: none;
+	color: #666;
+	font-family: arial, verdana, tahoma;
+	font-size: 11px;
+	display: inline-block;
+	
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	
+	transition: all 0.5s;
+	-webkit-transition: all 0.5s;
+	-moz-transition: all 0.5s;
+}
+
+.tree li a:hover, .tree li a:hover+ul li a {
+	background: #c8e4f8; color: #000; border: 1px solid #94a0b4;
+}
+
+.tree li a:hover+ul li::after, 
+.tree li a:hover+ul li::before, 
+.tree li a:hover+ul::before, 
+.tree li a:hover+ul ul::before{
+	border-color:  #94a0b4;
+}
+
+</style>
+<script>
+var ob = new Object();
+ob={
+    "大马":"钢锭+铁粉+铁锭+碳",
+    "钢锭":"铁粉+铁锭+碳",
+    "碳":"煤炭*8",
+    "重装":"大马+硬铝+压缩碳+铝青铜",
+    "硬铝":"铝粉*2+铜粉",
+    "压缩碳":"碳*4",
+    "铝青铜":"铝粉*2+青铜",
+    "青铜":"铜粉*2+锡粉",
+    "科林":"银粉+金粉+铜粉+青铜",
+    "锡锭":"铅粉*2+锡粉",
+    "银铜":"银粉*2+铜粉",
+    "金24":"金粉*11",
+    "镀金铁":"金24+铁粉",
+    "强化合金":"大马+重装+科林+锡锭+银铜+金24",
+    "自动稿":"强化合金*3+镀金铁*2",
+};
+var item="自动稿";
+var log = new Object();
+var nochaijie= new Object();
+log[item]=6;
+function chaijie(str,geshu){
+    if(ob.hasOwnProperty(str)){
+        strs=ob[str].split("+");
+        for (i=0;i<strs.length ;i++ ) 
+        {
+            if(strs[i].indexOf("*")!=-1){
+                //log[strs[i]]=parseInt(strs[i].substr(strs[i].indexOf("*")));
+                addob(strs[i].substr(0,strs[i].indexOf("*")),parseInt(strs[i].substr(strs[i].indexOf("*")+1))*geshu);
+            }else{
+                //log[strs[i]]=1;
+                addob(strs[i],geshu);
+            }
+        }
+        delob(str);
+    }else{
+        nochaijie[str]=1;
+        return false;
+    }
+}
+function addob(str,int){
+    if(log.hasOwnProperty(str)){
+        log[str]+=int;
+    }else{
+        log[str]=int;
+    }
+}
+function delob(str,int){
+    delete log[str];
+}
+function xunhuan(){
+    var s,b=1;
+    while(s!=b){
+        s=0,b=0;
+        for(var i in log){
+            if (log.hasOwnProperty(i)) {
+                //console.log(i,":",log[i]);
+                s++;
+                if(nochaijie.hasOwnProperty(i)==false){
+                    if(log[i]!=1){
+                        chaijie(i,log[i]);
+                    }else{
+                        chaijie(i,1);
+                    }
+                }else{
+                    b++;
+                }
+                
+            };
+        }
+    }
+
+}
+chaijie(item,log[item])
+xunhuan();
+/*for(var i in log){
+    if (log.hasOwnProperty(i)) {
+        log[i]=(parseInt(log[i]/64)==0?"":(parseInt(log[i]/64)+"组"))+((log[i]%64)>0?(log[i]%64):"")
+    };
+}*/
+console.log(log);
+
+function chaijiefff(str,geshu,j){
+	console.log(str,geshu,j);
+    if(ob.hasOwnProperty(str)){
+        var strs=ob[str].split("+");
+		var lsj=j;
+		console.log(strs);
+        for (var i=0;i<strs.length ;i++ ) 
+        {
+			if(i==0){
+				lsj.after($('<ul></ul>'));
+				lsj=lsj.next("ul");
+			}
+            if(strs[i].indexOf("*")!=-1){
+				lsj.append($('<li><a href="#">'+strs[i].substr(0,strs[i].indexOf("*"))+'*'+parseInt(strs[i].substr(strs[i].indexOf("*")+1))*geshu+'</a></li>'));
+				chaijiefff(strs[i].substr(0,strs[i].indexOf("*")),parseInt(strs[i].substr(strs[i].indexOf("*")+1))*geshu,lsj.find("a").last());
+            }else{
+                lsj.append($('<li><a href="#">'+strs[i]+'*'+geshu+'</a></li>'));
+				chaijiefff(strs[i],geshu,lsj.find("a").last());
+            }
+			
+        }
+    }else{
+        nochaijie[str]=1;
+		return false;
+    }
+}
+var rand=1;
+$(".tree").append($('<ul><li><a href="#" id="id'+rand+'">'+item+'</a></li></ul>'));
+var jq=$("#id"+rand);
+chaijiefff(item,1,jq);
+$(".tree").css("width","8000px");
+
+$(".tree").css("width",$(".tree>ul>li").width()+10);
+</script>
